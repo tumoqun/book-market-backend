@@ -5,44 +5,47 @@ var User = require("../models/user");
 
 module.exports.postRegister = async (req, res) => {
     const { email, username } = req.body;
-    // destructuring
-    const userHasUsername = await User.find({ username });
+    const userByUsername = await User.find({ username });
 
-    if (userHasUsername.length) {
+    if (userByUsername.length) {
         return res.status(202).json({
             success: false,
             msg: "Tên tài khoản đã tồn tại",
         });
     }
-    const userHasEmail = await User.find({ email });
-    if (userHasEmail.length) {
+    const userByMail = await User.find({ email });
+    if (userByMail.length) {
         return res.status(202).json({
             success: false,
             msg: "Email đã tồn tại",
         });
     }
+
     var hash = bcryptjs.hashSync(req.body.password);
     req.body.password = hash;
     var user = await User.create(req.body);
-    res.status(201).json({ success: true, user });
+    res.status(201).json({ success: true, data: { user } });
 };
 
 module.exports.postLogin = async (req, res) => {
     const { username, password } = req.body;
-    const userHasUsername = await User.findOne({ username });
-    if (userHasUsername === null) {
+    const userByUsername = await User.findOne({ username });
+
+    if (userByUsername === null) {
         return res
             .status(202)
             .json({ success: false, msg: "Username không tồn tại" });
+    } else {
+        if (!bcryptjs.compareSync(password, userByUsername.password)) {
+            return res
+                .status(202)
+                .json({ success: false, msg: "Mật khẩu không đúng" });
+        }
     }
-    if (!bcryptjs.compareSync(password, userHasUsername.password)) {
-        return res
-            .status(202)
-            .json({ success: false, msg: "Mật khẩu không đúng" });
-    }
-    const payload = { id: userHasUsername.id };
+
+    const payload = { id: userByUsername.id };
     const accessToken = jwt.sign(payload, process.env.jwt, {
-        expiresIn: 10 * 60 * 1000,
+        expiresIn: "2d",
     });
-    res.status(201).json({ success: true, accessToken });
+    res.status(201).json({ success: true, data: { accessToken } });
 };
