@@ -1,18 +1,18 @@
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate');
+const mongoosePaginate = require("mongoose-paginate");
 
 var bookSchema = new mongoose.Schema({
     title: String,
     author: String,
     description: String,
     price: Number,
-    status: Number,
+    status: Number, // 1: ?, 2: ?, 3: ?
     quantity: Number,
     seller: mongoose.Schema.Types.ObjectId,
     category: mongoose.Schema.Types.ObjectId,
     images: Array,
-    thumbnails: Array
+    previewImgs: Array,
 });
-bookSchema.plugin(mongoosePaginate)
+bookSchema.plugin(mongoosePaginate);
 var Book = mongoose.model("Book", bookSchema, "books");
 module.exports = Book;
