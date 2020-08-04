@@ -22,13 +22,3 @@ module.exports.postUpload = async (req, res) => {
     res.status(201).json({ success: true, Book });
 };
 
-module.exports.getBook = async (req, res) => {
-    const {page,perPage}=req.query
-    const options={
-        page:parseInt(page,10),
-        limit:parseInt(perPage,10)
-    }
-    const books=await bookModel.paginate({},options)
-    console.log(books)
-    return res.json(books)
-}
