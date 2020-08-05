@@ -19,6 +19,11 @@ module.exports.postUpload = async (req, res) => {
     const idDemo = "5f28184759ee352004b990b3";
     const sellerId = await userModel.findById(idDemo);
 
+    console.log(req.body);
+    const filesImg = req.body.filesImg;
+    const filesPrev = req.body.filesPrev;
+    console.log(filesImg);
+    console.log(filesPrev);
     const Book = new bookModel({
         ...req.body,
         seller: sellerId,
