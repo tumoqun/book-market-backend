@@ -2,7 +2,8 @@ var userModel = require("../models/user");
 var bookModel=require("../models/book")
 
 module.exports.postUpload = async (req, res) => {
-    const sellerId= await userModel.findById('5f0d38baca9a311508fc2a1f')
+    const {user}=req
+    const sellerId= await userModel.findById(user._id)
     const { title, description, author, price, quantity, images, thumbnail  } = req.body;
     // destructuring
     const Book= new bookModel({

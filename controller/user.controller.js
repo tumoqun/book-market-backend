@@ -2,6 +2,8 @@ const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 var User = require("../models/user");
+var bookModel=require("../models/book")
+var ObjectId = require('mongodb').ObjectId;
 
 module.exports.postRegister = async (req, res) => {
     const { email, username } = req.body;
@@ -52,11 +54,20 @@ module.exports.postLogin = async (req, res) => {
 
 module.exports.getBook = async (req, res) => {
     const {page,perPage}=req.query
+    const {author,bookId,categoryId}=req.body
+    console.log(bookId)
+    console.log(author)
     const options={
         page:parseInt(page,10),
         limit:parseInt(perPage,10)
     }
-    const books=await bookModel.paginate({},options)
+    const books=await bookModel.paginate({
+         $or:[{author:author},
+            {_id:ObjectId(bookId)},
+            {category:ObjectId(categoryId)}
+            ]
+        }
+    ,options)
     console.log(books)
     return res.json(books)
 }
