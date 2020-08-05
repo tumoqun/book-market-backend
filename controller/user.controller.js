@@ -2,6 +2,8 @@ const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 var User = require("../models/user");
+var bookModel = require("../models/book");
+var ObjectId = require("mongodb").ObjectId;
 
 module.exports.postRegister = async (req, res) => {
     const { email, username } = req.body;
@@ -59,4 +61,25 @@ module.exports.update = async (req, res) => {
     });
     console.log(result);
     res.status(201).json({ success: true, data: { user: result } });
+};
+module.exports.getBook = async (req, res) => {
+    const { page, perPage, author, bookId, categoryId } = req.query;
+    console.log(bookId);
+    console.log(author);
+    const options = {
+        page: parseInt(page, 10) || 1,
+        limit: parseInt(perPage, 10) || 10,
+    };
+    const books = await bookModel.paginate(
+        {
+            $or: [
+                { author: author },
+                { _id: ObjectId(bookId) },
+                { category: ObjectId(categoryId) },
+            ],
+        },
+        options
+    );
+    console.log(books);
+    return res.json(books);
 };
