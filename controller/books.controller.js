@@ -1,13 +1,31 @@
 var bookModel = require("../models/book");
+var bookModel = require("../models/book");
+var ObjectId = require("mongodb").ObjectId;
 
 module.exports.getBooks = async (req, res) => {
-    const { page, perPage } = req.query;
+    const { page, perPage, author, categoryId, sellerId } = req.query;
 
     const options = {
         page: parseInt(page, 10) || 1,
-        limit: parseInt(perPage, 10) || 2,
+        limit: parseInt(perPage, 10) || 10,
     };
-    const books = await bookModel.paginate({}, options);
+
+    if (!categoryId && !sellerId && !author) {
+        const books = await bookModel.paginate({}, options);
+        return res.json(books);
+    }
+
+    const books = await bookModel.paginate(
+        {
+            $or: [
+                { author: author },
+                { category: ObjectId(categoryId) },
+                { seller: ObjectId(sellerId) },
+            ],
+        },
+        options
+    );
+    console.log(books);
     return res.json(books);
 };
 

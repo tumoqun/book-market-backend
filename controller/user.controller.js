@@ -63,19 +63,24 @@ module.exports.update = async (req, res) => {
     res.status(201).json({ success: true, data: { user: result } });
 };
 module.exports.getBook = async (req, res) => {
-    const { page, perPage, author, bookId, categoryId } = req.query;
-    console.log(bookId);
-    console.log(author);
+    const { page, perPage, author, categoryId, sellerId } = req.query;
+
     const options = {
         page: parseInt(page, 10) || 1,
         limit: parseInt(perPage, 10) || 10,
     };
+
+    if (!categoryId && !sellerId && !author) {
+        const books = await bookModel.paginate({}, options);
+        return res.json(books);
+    }
+
     const books = await bookModel.paginate(
         {
             $or: [
                 { author: author },
-                { _id: ObjectId(bookId) },
                 { category: ObjectId(categoryId) },
+                { seller: ObjectId(sellerId) },
             ],
         },
         options
