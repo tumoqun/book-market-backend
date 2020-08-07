@@ -54,7 +54,7 @@ module.exports.postLogin = async (req, res) => {
 
 module.exports.getBook = async (req, res) => {
     const {page,perPage}=req.query
-    const {author,bookId,categoryId}=req.body
+    const {author,bookId,categoryId}=req.query
     console.log(bookId)
     console.log(author)
     const options={
@@ -70,4 +70,10 @@ module.exports.getBook = async (req, res) => {
     ,options)
     console.log(books)
     return res.json(books)
+}
+
+module.exports.getUserById = async (req, res) => {
+    const {ID}=req.query
+    const user=await User.findById(ID)
+    return res.json(user)
 }
