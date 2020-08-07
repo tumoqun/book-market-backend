@@ -8,6 +8,10 @@ module.exports.getBooks = async (req, res) => {
     const options = {
         page: parseInt(page, 10) || 1,
         limit: parseInt(perPage, 10) || 10,
+        populate: {
+            path: "seller",
+            model: "User",
+        },
     };
 
     if (!categoryId && !sellerId && !author) {
