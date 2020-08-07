@@ -88,3 +88,9 @@ module.exports.getBook = async (req, res) => {
     console.log(books);
     return res.json(books);
 };
+
+module.exports.getUserById = async (req, res) => {
+    const { ID } = req.query;
+    const user = await User.findById(ID);
+    return res.json(user);
+};

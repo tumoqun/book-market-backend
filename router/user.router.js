@@ -6,5 +6,6 @@ router.post("/register", userController.postRegister);
 router.post("/login", userController.postLogin);
 router.post("/update", userController.update);
 router.get("/book-list", userController.getBook);
+router.get("/user", userController.getUserById);
 
 module.exports = router;
