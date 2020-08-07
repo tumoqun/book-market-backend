@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 var cartSchema = new mongoose.Schema({
-    
+    userID: String,
+    totalPrice:Number,
+    productList:Array
 });
-var User = mongoose.model("User", userSchema, "users");
-module.exports = User;
+var Cart = mongoose.model("Cart", cartSchema, "carts");
+module.exports = Cart;

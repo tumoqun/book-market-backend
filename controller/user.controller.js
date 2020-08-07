@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 var User = require("../models/user");
 var bookModel = require("../models/book");
 var ObjectId = require("mongodb").ObjectId;
+const Cart = require("../models/cart");
 
 module.exports.postRegister = async (req, res) => {
     const { email, username } = req.body;
@@ -26,7 +27,28 @@ module.exports.postRegister = async (req, res) => {
     var hash = bcryptjs.hashSync(req.body.password);
     req.body.password = hash;
     var user = await User.create(req.body);
+    const cart = new Cart({
+        userID: user._id,
+    });
+    await cart.save();
     res.status(201).json({ success: true, data: { user } });
+};
+
+module.exports.addToCart = async (req, res) => {
+    const { productID, amount } = req.body;
+    // const {user}=req
+    const cart = await Cart.findOneAndUpdate(
+        { userID: "5f2d4905d71a33560403041a" },
+        {
+            $push: {
+                productList: {
+                    amount: amount,
+                    productID: productID,
+                },
+            },
+        }
+    );
+    if (cart) res.status(201).json({ success: true, data: { cart } });
 };
 
 module.exports.postLogin = async (req, res) => {

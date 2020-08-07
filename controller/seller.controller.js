@@ -1,5 +1,8 @@
 var userModel = require("../models/user");
 var bookModel = require("../models/book");
+const upload = require("../multer");
+const cloudinary = require("../cloudinary");
+const fs = require("fs");
 
 /*
     req.body = {
@@ -16,16 +19,29 @@ var bookModel = require("../models/book");
     }
 */
 module.exports.postUpload = async (req, res) => {
+    // const {user}=req
     const idDemo = "5f28184759ee352004b990b3";
     const sellerId = await userModel.findById(idDemo);
-
-    console.log(req.body);
-    const filesImg = req.body.filesImg;
-    const filesPrev = req.body.filesPrev;
-    console.log(filesImg);
-    console.log(filesPrev);
+    const { title, description, author, price, quantity, thumbnail } = req.body;
+    const uploader = async (path) => await cloudinary.uploads(path, "images");
+    const urls = [];
+    const files = req.files;
+    console.log(files);
+    for (const file of files) {
+        const { path } = file;
+        const newPath = await uploader(path);
+        urls.push(newPath);
+        fs.unlinkSync(path);
+    }
+    // destructuring
     const Book = new bookModel({
-        ...req.body,
+        title: title,
+        description: description,
+        author: author,
+        price: price,
+        quantity: quantity,
+        images: urls,
+        thumbnail: thumbnail,
         seller: sellerId,
     });
     await Book.save(function (err) {
