@@ -6,6 +6,6 @@ router.post("/register", userController.postRegister);
 router.post("/login", userController.postLogin);
 router.get("/book-list", userController.getBook);
 router.get("/user", userController.getUserById);
-
+router.post("/add-to-cart",userController.addToCart)
 
 module.exports = router;
