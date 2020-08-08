@@ -7,5 +7,6 @@ router.post("/login", userController.postLogin);
 router.get("/book-list", userController.getBook);
 router.get("/user", userController.getUserById);
 router.post("/add-to-cart",userController.addToCart)
+router.post("/comment",userController.Comment)
 
 module.exports = router;

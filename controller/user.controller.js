@@ -5,6 +5,8 @@ var User = require("../models/user");
 var bookModel=require("../models/book")
 var cartModel=require("../models/cart");
 const Cart = require("../models/cart");
+const { findById } = require("../models/user");
+const Book = require("../models/book");
 var ObjectId = require('mongodb').ObjectId;
 
 module.exports.postRegister = async (req, res) => {
@@ -38,13 +40,14 @@ module.exports.postRegister = async (req, res) => {
 module.exports.addToCart = async (req, res) => {
     const { productID, amount } = req.body;
     // const {user}=req
+    const product=await Book.findById(productID)
     const cart =await Cart.findOneAndUpdate(
         {userID:"5f2d4905d71a33560403041a"},
         {
             $push:{
                 productList:{
                     amount:amount,
-                    productID:productID
+                    productID:product
                 }
             }
         }
@@ -99,4 +102,22 @@ module.exports.getUserById = async (req, res) => {
     const {ID}=req.query
     const user=await User.findById(ID)
     return res.json(user)
+}
+
+module.exports.Comment=async (req,res)=>{
+    const {rating,content,sellerID}=req.body
+    const createdAt=Date.now()
+    const seller =await User.findOneAndUpdate(
+        {_id:ObjectId(sellerID)},
+        {
+            $push:{
+                comment:{
+                    rating:rating,
+                    content:content,
+                    createdAt:createdAt
+                }
+            }
+        }
+        )
+    if (seller) return res.status(201).json({ success: true, data: { seller } });
 }

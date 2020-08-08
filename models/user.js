@@ -7,6 +7,7 @@ var userSchema = new mongoose.Schema({
     address: String,
     role: Number, // 1: buyer, 2: seller, 3: admin
     avatar: String,
+    comment:Array
 });
 var User = mongoose.model("User", userSchema, "users");
 module.exports = User;
