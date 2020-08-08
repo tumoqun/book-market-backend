@@ -77,11 +77,11 @@ module.exports.postLogin = async (req, res) => {
 module.exports.update = async (req, res) => {
     const user = "5f1dacbce20e190faca9c8eb";
     let objUpdate = req.body;
-    console.log(objUpdate);
+
     const result = await User.findOneAndUpdate({ _id: user }, objUpdate, {
         new: true,
     });
-    console.log(result);
+
     res.status(201).json({ success: true, data: { user: result } });
 };
 module.exports.getBook = async (req, res) => {
@@ -107,7 +107,7 @@ module.exports.getBook = async (req, res) => {
         },
         options
     );
-    console.log(books);
+
     return res.json(books);
 };
 

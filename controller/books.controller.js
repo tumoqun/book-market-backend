@@ -29,13 +29,12 @@ module.exports.getBooks = async (req, res) => {
         },
         options
     );
-    console.log(books);
+
     return res.json(books);
 };
 
 module.exports.getBook = async (req, res) => {
     const { id_book: idBook } = req.params;
-    console.log(idBook);
 
     const book = await bookModel.findById(idBook);
     return res.json(book);

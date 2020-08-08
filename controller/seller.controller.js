@@ -26,7 +26,10 @@ module.exports.postUpload = async (req, res) => {
     const uploader = async (path) => await cloudinary.uploads(path, "images");
     const urls = [];
     const files = req.files;
-    console.log(files);
+    console.log(req.body);
+    console.log(req.file);
+    console.log(req.files);
+    console.log(req.body.filesImg);
     for (const file of files) {
         const { path } = file;
         const newPath = await uploader(path);
