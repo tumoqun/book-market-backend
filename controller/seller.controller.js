@@ -28,12 +28,12 @@ module.exports.postUpload = async (req, res) => {
     const files = req.files;
     for (const file of files.images) {
         const newPath = await uploader(file.path);
-        urlsImage.push(newPath);
+        urlsImage.push(newPath.url);
         fs.unlinkSync(file.path);
     }
     for (const filePrev of files.previewImgs) {
-        const url = await uploader(filePrev.path);
-        urlsPreview.push(url);
+        const newPath = await uploader(filePrev.path);
+        urlsPreview.push(newPath.url);
         fs.unlinkSync(filePrev.path);
     }
     // destructuring
