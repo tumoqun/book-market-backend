@@ -2,12 +2,12 @@ const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 var User = require("../models/user");
-var bookModel=require("../models/book")
-var cartModel=require("../models/cart");
+var bookModel = require("../models/book");
+var ObjectId = require("mongodb").ObjectId;
 const Cart = require("../models/cart");
 const { findById } = require("../models/user");
 const Book = require("../models/book");
-var ObjectId = require('mongodb').ObjectId;
+var ObjectId = require("mongodb").ObjectId;
 
 module.exports.postRegister = async (req, res) => {
     const { email, username } = req.body;
@@ -30,29 +30,30 @@ module.exports.postRegister = async (req, res) => {
     var hash = bcryptjs.hashSync(req.body.password);
     req.body.password = hash;
     var user = await User.create(req.body);
-    const cart=new Cart({
-        userID: user._id
-    })
-    await cart.save()
+    const cart = new Cart({
+        userID: user._id,
+    });
+    await cart.save();
     res.status(201).json({ success: true, data: { user } });
 };
 
 module.exports.addToCart = async (req, res) => {
     const { productID, amount } = req.body;
+    let userDemo = "5f2d4905d71a33560403041a";
     // const {user}=req
-    const product=await Book.findById(productID)
-    const cart =await Cart.findOneAndUpdate(
-        {userID:"5f2d4905d71a33560403041a"},
+    const product = await Book.findById(productID);
+    const cart = await Cart.findOneAndUpdate(
+        { userID: userDemo },
         {
-            $push:{
-                productList:{
-                    amount:amount,
-                    productID:product
-                }
-            }
+            $push: {
+                productList: {
+                    amount: amount,
+                    productID: product,
+                },
+            },
         }
-        )
-    if(cart) res.status(201).json({ success: true, data: { cart } });
+    );
+    if (cart) res.status(201).json({ success: true, data: { cart } });
 };
 
 module.exports.postLogin = async (req, res) => {
@@ -78,46 +79,64 @@ module.exports.postLogin = async (req, res) => {
     res.status(201).json({ success: true, data: { accessToken } });
 };
 
+module.exports.update = async (req, res) => {
+    const user = "5f1dacbce20e190faca9c8eb";
+    let objUpdate = req.body;
+
+    const result = await User.findOneAndUpdate({ _id: user }, objUpdate, {
+        new: true,
+    });
+
+    res.status(201).json({ success: true, data: { user: result } });
+};
 module.exports.getBook = async (req, res) => {
-    const {page,perPage}=req.query
-    const {author,bookId,categoryId}=req.query
-    console.log(bookId)
-    console.log(author)
-    const options={
-        page:parseInt(page,10),
-        limit:parseInt(perPage,10)
+    const { page, perPage, author, categoryId, sellerId } = req.query;
+
+    const options = {
+        page: parseInt(page, 10) || 1,
+        limit: parseInt(perPage, 10) || 10,
+    };
+
+    if (!categoryId && !sellerId && !author) {
+        const books = await bookModel.paginate({}, options);
+        return res.json(books);
     }
-    const books=await bookModel.paginate({
-         $or:[{author:author},
-            {_id:ObjectId(bookId)},
-            {category:ObjectId(categoryId)}
-            ]
-        }
-    ,options)
-    console.log(books)
-    return res.json(books)
-}
+
+    const books = await bookModel.paginate(
+        {
+            $or: [
+                { author: author },
+                { category: ObjectId(categoryId) },
+                { seller: ObjectId(sellerId) },
+            ],
+        },
+        options
+    );
+
+    return res.json(books);
+};
 
 module.exports.getUserById = async (req, res) => {
-    const {ID}=req.query
-    const user=await User.findById(ID)
-    return res.json(user)
-}
+    const { ID } = req.query;
+    const user = await User.findById(ID);
+    return res.json(user);
+};
 
-module.exports.Comment=async (req,res)=>{
-    const {rating,content,sellerID}=req.body
-    const createdAt=Date.now()
-    const seller =await User.findOneAndUpdate(
-        {_id:ObjectId(sellerID)},
+module.exports.Comment = async (req, res) => {
+    const { rating, content, sellerID } = req.body;
+    const createdAt = Date.now();
+    const seller = await User.findOneAndUpdate(
+        { _id: ObjectId(sellerID) },
         {
-            $push:{
-                comment:{
-                    rating:rating,
-                    content:content,
-                    createdAt:createdAt
-                }
-            }
+            $push: {
+                comment: {
+                    rating: rating,
+                    content: content,
+                    createdAt: createdAt,
+                },
+            },
         }
-        )
-    if (seller) return res.status(201).json({ success: true, data: { seller } });
-}
+    );
+    if (seller)
+        return res.status(201).json({ success: true, data: { seller } });
+};
