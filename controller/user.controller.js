@@ -40,9 +40,24 @@ module.exports.postRegister = async (req, res) => {
 module.exports.addToCart = async (req, res) => {
     const { productID, amount } = req.body;
     let userDemo = "5f2d4905d71a33560403041a";
+    var duplicate=false
     // const {user}=req
     const product = await Book.findById(productID);
-    const cart = await Cart.findOneAndUpdate(
+    const cart =await Cart.find({userID:userDemo})
+    cart[0].productList.forEach(element => {
+        if(element.productID==productID) {
+            element.amount=parseInt(element.amount)+parseInt(amount)
+            duplicate=true
+            }
+        })
+    var update
+    if(duplicate) { update=await Cart.findOneAndUpdate({userID:userDemo},
+        {
+            productList:cart[0].productList
+        })
+    }
+    else{
+         update = await Cart.findOneAndUpdate(
         { userID: userDemo },
         {
             $push: {
@@ -53,7 +68,29 @@ module.exports.addToCart = async (req, res) => {
             },
         }
     );
-    if (cart) res.status(201).json({ success: true, data: { cart } });
+    }
+   
+    if (update) res.status(201).json({ success: true, data: "Add successfully!" });
+};
+
+module.exports.removeFromCart = async (req, res) => {
+    const { productID } = req.body;
+    console.log(productID)
+    let userDemo = "5f2d4905d71a33560403041a";
+    // const {user}=req
+    const cart =await Cart.find({userID:userDemo})
+    for(let i=0;i<cart[0].productList.length;i++){
+        if(cart[0].productList[i].productID._id==productID) 
+        {
+            cart[0].productList.splice(i,1)
+            break;
+        }
+    }
+    const update=await Cart.findOneAndUpdate({userID:userDemo},
+        {
+            productList:cart[0].productList
+        })
+    if(update) res.status(201).json({ success: true, data: "Remove successfully!" });
 };
 
 module.exports.postLogin = async (req, res) => {
