@@ -36,9 +36,10 @@ module.exports.postRegister = async (req, res) => {
 
 module.exports.addToCart = async (req, res) => {
     const { productID, amount } = req.body;
+    let userDemo = "5f2d4905d71a33560403041a";
     // const {user}=req
     const cart = await Cart.findOneAndUpdate(
-        { userID: "5f2d4905d71a33560403041a" },
+        { userID: userDemo },
         {
             $push: {
                 productList: {
