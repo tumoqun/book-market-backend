@@ -45,7 +45,7 @@ module.exports.addToCart = async (req, res) => {
     const product = await Book.findById(productID);
     const cart =await Cart.find({userID:userDemo})
     cart[0].productList.forEach(element => {
-        if(element.productID==productID) {
+        if(element.productID._id==productID) {
             element.amount=parseInt(element.amount)+parseInt(amount)
             duplicate=true
             }
@@ -69,13 +69,12 @@ module.exports.addToCart = async (req, res) => {
         }
     );
     }
-   
-    if (update) res.status(201).json({ success: true, data: "Add successfully!" });
+    const result=await Cart.find({userID:userDemo})
+    if (update) res.status(201).json({ success: true, data: result });
 };
 
 module.exports.removeFromCart = async (req, res) => {
     const { productID } = req.body;
-    console.log(productID)
     let userDemo = "5f2d4905d71a33560403041a";
     // const {user}=req
     const cart =await Cart.find({userID:userDemo})
@@ -90,7 +89,8 @@ module.exports.removeFromCart = async (req, res) => {
         {
             productList:cart[0].productList
         })
-    if(update) res.status(201).json({ success: true, data: "Remove successfully!" });
+    const result=await Cart.find({userID:userDemo})
+    if(update) res.status(201).json({ success: true, data: result });
 };
 
 module.exports.postLogin = async (req, res) => {
