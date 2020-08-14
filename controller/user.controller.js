@@ -40,40 +40,42 @@ module.exports.postRegister = async (req, res) => {
 module.exports.addToCart = async (req, res) => {
     const { productID, amount } = req.body;
     let userDemo = "5f2d4905d71a33560403041a";
-    var duplicate=false
+    var duplicate = false;
     // const {user}=req
     const product = await Book.findById(productID);
-    const cart =await Cart.find({userID:userDemo})
-    var totalPrice=0
-    cart[0].productList.forEach(element => {
-        if(element.productID._id==productID) {
-            element.amount=parseInt(element.amount)+parseInt(amount)
-            duplicate=true
-            }
-        totalPrice+=parseInt(element.amount*element.productID.price)
-        })
-    var update
-    if(duplicate) { update=await Cart.findOneAndUpdate({userID:userDemo},
-        {
-            productList:cart[0].productList,
-            totalPrice:totalPrice
-        })
-    }
-    else{
-         update = await Cart.findOneAndUpdate(
-        { userID: userDemo },
-        {
-            $push: {
-                productList: {
-                    amount: amount,
-                    productID: product,
-                },
-            },
-            totalPrice:totalPrice
+    const cart = await Cart.find({ userID: userDemo });
+    var totalPrice = 0;
+    cart[0].productList.forEach((element) => {
+        if (element.productID._id == productID) {
+            element.amount = parseInt(element.amount) + parseInt(amount);
+            duplicate = true;
         }
-    );
+        totalPrice += parseInt(element.amount * element.productID.price);
+    });
+    var update;
+    if (duplicate) {
+        update = await Cart.findOneAndUpdate(
+            { userID: userDemo },
+            {
+                productList: cart[0].productList,
+                totalPrice: totalPrice,
+            }
+        );
+    } else {
+        update = await Cart.findOneAndUpdate(
+            { userID: userDemo },
+            {
+                $push: {
+                    productList: {
+                        amount: amount,
+                        productID: product,
+                    },
+                },
+                totalPrice: totalPrice,
+            }
+        );
     }
-    const result=await Cart.find({userID:userDemo})
+    const result = await Cart.find({ userID: userDemo });
     if (update) res.status(201).json({ success: true, data: result });
 };
 
@@ -81,20 +83,21 @@ module.exports.removeFromCart = async (req, res) => {
     const { productID } = req.body;
     let userDemo = "5f2d4905d71a33560403041a";
     // const {user}=req
-    const cart =await Cart.find({userID:userDemo})
-    for(let i=0;i<cart[0].productList.length;i++){
-        if(cart[0].productList[i].productID._id==productID) 
-        {
-            cart[0].productList.splice(i,1)
+    const cart = await Cart.find({ userID: userDemo });
+    for (let i = 0; i < cart[0].productList.length; i++) {
+        if (cart[0].productList[i].productID._id == productID) {
+            cart[0].productList.splice(i, 1);
             break;
         }
     }
-    const update=await Cart.findOneAndUpdate({userID:userDemo},
+    const update = await Cart.findOneAndUpdate(
+        { userID: userDemo },
         {
-            productList:cart[0].productList
-        })
-    const result=await Cart.find({userID:userDemo})
-    if(update) res.status(201).json({ success: true, data: result });
+            productList: cart[0].productList,
+        }
+    );
+    const result = await Cart.find({ userID: userDemo });
+    if (update) res.status(201).json({ success: true, data: result });
 };
 
 module.exports.postLogin = async (req, res) => {
@@ -160,32 +163,42 @@ module.exports.getBook = async (req, res) => {
 module.exports.getCart = async (req, res) => {
     const { userID } = req.query;
 
-    const cart=await Cart.find({userID:"5f2d4905d71a33560403041a"})
+    const cart = await Cart.find({ userID: "5f2d4905d71a33560403041a" });
 
     return res.json(cart);
 };
 
 module.exports.getUserById = async (req, res) => {
     const { ID } = req.query;
-    const user = await User.findById(ID);
+    const user = await User.findById(ID).populate("comments.author");
     return res.json(user);
 };
 
 module.exports.Comment = async (req, res) => {
+    console.log("here");
     const { rating, content, sellerID } = req.body;
+    const authorDemo = "5f28181d59ee352004b990b2";
+    let user = await User.findById(authorDemo);
     const createdAt = Date.now();
     const seller = await User.findOneAndUpdate(
         { _id: ObjectId(sellerID) },
         {
             $push: {
-                comment: {
+                comments: {
+                    author: user,
                     rating: rating,
                     content: content,
                     createdAt: createdAt,
                 },
             },
-        }
-    );
-    if (seller) return res.status(201).json({ success: true, data: "Comment successfully" });
-    else return res.status(204).json({ fail: true, data: "Comment failed" })
+        },
+        { new: true }
+    ).populate("comments.author");
+    console.log(seller);
+    if (seller)
+        return res
+            .status(201)
+            .json({ success: true, comments: seller.comments });
+    else
+        return res.status(204).json({ success: false, data: "Comment failed" });
 };
