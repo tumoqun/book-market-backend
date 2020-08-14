@@ -10,5 +10,6 @@ router.get("/user", userController.getUserById);
 router.post("/add-to-cart",userController.addToCart)
 router.post("/comment",userController.Comment)
 router.post("/remove-from-cart",userController.removeFromCart)
+router.get("/cart",userController.getCart)
 
 module.exports = router;
