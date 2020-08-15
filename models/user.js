@@ -17,6 +17,12 @@ var userSchema = new mongoose.Schema(
                 createdAt: Date,
             },
         ],
+        cart: [
+            {
+                book: { type: mongoose.Types.ObjectId, ref: "Book" },
+                amount: Number,
+            },
+        ],
     },
     { timestamps: true }
 );
