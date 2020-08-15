@@ -40,40 +40,44 @@ module.exports.postRegister = async (req, res) => {
 module.exports.addToCart = async (req, res) => {
     const { productID, amount } = req.body;
     let userDemo = "5f2d4905d71a33560403041a";
-    var duplicate=false
+    var duplicate = false
     // const {user}=req
     const product = await Book.findById(productID);
-    const cart =await Cart.find({userID:userDemo})
-    var totalPrice=0
+    const cart = await Cart.find({ userID: userDemo })
+    var totalPrice = 0
     cart[0].productList.forEach(element => {
-        if(element.productID._id==productID) {
-            element.amount=parseInt(element.amount)+parseInt(amount)
-            duplicate=true
-            }
-        totalPrice+=parseInt(element.amount*element.productID.price)
-        })
-    var update
-    if(duplicate) { update=await Cart.findOneAndUpdate({userID:userDemo},
-        {
-            productList:cart[0].productList,
-            totalPrice:totalPrice
-        })
-    }
-    else{
-         update = await Cart.findOneAndUpdate(
-        { userID: userDemo },
-        {
-            $push: {
-                productList: {
-                    amount: amount,
-                    productID: product,
-                },
-            },
-            totalPrice:totalPrice
+        if (element.productID._id == productID) {
+            element.amount = parseInt(element.amount) + parseInt(amount)
+            duplicate = true
         }
-    );
+        totalPrice+=parseInt(element.amount*element.productID.price)
     }
-    const result=await Cart.find({userID:userDemo})
+    )
+    var update
+    if (duplicate) {
+        update = await Cart.findOneAndUpdate({ userID: userDemo },
+            {
+                productList: cart[0].productList,
+                totalPrice: totalPrice
+            })
+    }
+    else {
+        update = await Cart.findOneAndUpdate(
+            { userID: userDemo },
+            {
+                $push: {
+                    productList: {
+                        amount: amount,
+                        productID: product,
+                    },
+                },
+                $inc:{
+                    totalPrice:parseInt(amount*product.price)
+                }
+            }
+        );
+    }
+    const result = await Cart.find({ userID: userDemo })
     if (update) res.status(201).json({ success: true, data: result });
 };
 
@@ -81,22 +85,25 @@ module.exports.removeFromCart = async (req, res) => {
     const { productID } = req.body;
     let userDemo = "5f2d4905d71a33560403041a";
     // const {user}=req
-    const cart =await Cart.find({userID:userDemo})
-    for(let i=0;i<cart[0].productList.length;i++){
-        if(cart[0].productList[i].productID._id==productID) 
-        {
-            cart[0].productList.splice(i,1)
+    const cart = await Cart.find({ userID: userDemo })
+    var totalPrice=cart[0].totalPrice
+    for (let i = 0; i < cart[0].productList.length; i++) {
+        if (cart[0].productList[i].productID._id == productID) {
+            totalPrice -=parseInt(cart[0].productList[i].amount * cart[0].productList[i].productID.price)
+            cart[0].productList.splice(i, 1)
             break;
         }
     }
-    const update=await Cart.findOneAndUpdate({userID:userDemo},
+    const update = await Cart.findOneAndUpdate({ userID: userDemo },
         {
-            productList:cart[0].productList
-        })
-    const result=await Cart.find({userID:userDemo})
-    if(update) res.status(201).json({ success: true, data: result });
+            productList: cart[0].productList,
+            totalPrice: totalPrice
+        },
+        {new: true})
+    const result = await Cart.find({ userID: userDemo })
+    if (update) res.status(201).json({ success: true, data: result });
 };
-
+// logic cua ong h doc met qua :)) don gian ma, update xong r lay lai cai cart ms nhât
 module.exports.postLogin = async (req, res) => {
     const { username, password } = req.body;
     const userByUsername = await User.findOne({ username });
@@ -160,7 +167,7 @@ module.exports.getBook = async (req, res) => {
 module.exports.getCart = async (req, res) => {
     const { userID } = req.query;
 
-    const cart=await Cart.find({userID:"5f2d4905d71a33560403041a"})
+    const cart = await Cart.find({ userID: "5f2d4905d71a33560403041a" })
 
     return res.json(cart);
 };
