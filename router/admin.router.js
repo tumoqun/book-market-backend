@@ -1,8 +1,7 @@
 var express = require("express");
 var router = express.Router();
-const upload = require("../multer");
-const jwt = require("jsonwebtoken");
 const utils =require("../utils/utils")
+const jwt = require("jsonwebtoken");
 
 function requireLogin(req, res, next) {
     let accessToken = req.header("Authorization");
@@ -21,15 +20,8 @@ function requireLogin(req, res, next) {
       return next();
     });
   }
-var sellerController = require("../controller/seller.controller");
-
-// router.post("/upload", sellerController.postUpload);
-var cpUpload = upload.fields([
-    { name: "images", maxCount: 5 },
-    { name: "previewImgs", maxCount: 20 },
-]);
+//admin route here 
 
 router.use(requireLogin)
-router.post("/upload",utils.requireRole(2), cpUpload, sellerController.postUpload);
+router.post("/abc", utils.requireRole(3));
 
-module.exports = router;

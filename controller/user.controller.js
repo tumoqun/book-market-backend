@@ -51,7 +51,7 @@ module.exports.addToCart = async (req, res) => {
             element.amount = parseInt(element.amount) + parseInt(amount)
             duplicate = true
         }
-        totalPrice+=parseInt(element.amount*element.productID.price)
+        totalPrice += parseInt(element.amount * element.productID.price)
     }
     )
     var update
@@ -72,8 +72,8 @@ module.exports.addToCart = async (req, res) => {
                         productID: product,
                     },
                 },
-                $inc:{
-                    totalPrice:parseInt(amount*product.price)
+                $inc: {
+                    totalPrice: parseInt(amount * product.price)
                 }
             }
         );
@@ -87,10 +87,10 @@ module.exports.removeFromCart = async (req, res) => {
     let userDemo = "5f2d4905d71a33560403041a";
     // const {user}=req
     const cart = await Cart.find({ userID: userDemo })
-    var totalPrice=cart[0].totalPrice
+    var totalPrice = cart[0].totalPrice
     for (let i = 0; i < cart[0].productList.length; i++) {
         if (cart[0].productList[i].productID._id == productID) {
-            totalPrice -=parseInt(cart[0].productList[i].amount * cart[0].productList[i].productID.price)
+            totalPrice -= parseInt(cart[0].productList[i].amount * cart[0].productList[i].productID.price)
             cart[0].productList.splice(i, 1)
             break;
         }
@@ -100,11 +100,10 @@ module.exports.removeFromCart = async (req, res) => {
             productList: cart[0].productList,
             totalPrice: totalPrice
         },
-        )
+    )
     const result = await Cart.find({ userID: userDemo })
     if (update) res.status(201).json({ success: true, data: result });
 };
-// logic cua ong h doc met qua :)) don gian ma, update xong r lay lai cai cart ms nhât
 module.exports.postLogin = async (req, res) => {
     const { username, password } = req.body;
     const userByUsername = await User.findOne({ username });
@@ -121,7 +120,14 @@ module.exports.postLogin = async (req, res) => {
         }
     }
 
-    const payload = { id: userByUsername.id };
+    const payload =
+    {
+        user: {
+            email: userByUsername.email,
+            username: userByUsername.username,
+            role: userByUsername.role
+        }
+    };
     const accessToken = jwt.sign(payload, process.env.jwt, {
         expiresIn: "2d",
     });
