@@ -1,6 +1,7 @@
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const cloudinary = require("../cloudinary");
 var User = require("../models/user");
 var bookModel = require("../models/book");
 var ObjectId = require("mongodb").ObjectId;
@@ -201,4 +202,25 @@ module.exports.Comment = async (req, res) => {
             .json({ success: true, comments: seller.comments });
     else
         return res.status(204).json({ success: false, data: "Comment failed" });
+};
+module.exports.uploadAvatar = async (req, res) => {
+    let userDemo = "5f28181d59ee352004b990b2";
+    const uploader = async (path) => await cloudinary.uploads(path, "images");
+    const newPath = await uploader(req.file.path);
+
+    const result = await User.findOneAndUpdate(
+        { _id: ObjectId(userDemo) },
+        { avatar: newPath.url },
+        { new: true }
+    );
+    console.log(result);
+    res.status(200).json({ success: true, avatar: newPath.url });
+};
+module.exports.removeAvatar = async (req, res) => {
+    let userDemo = "5f28181d59ee352004b990b2";
+    const result = await User.findOneAndUpdate(
+        { _id: ObjectId(userDemo) },
+        { avatar: undefined }
+    );
+    res.status(201).json({ success: true });
 };
