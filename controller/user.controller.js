@@ -1,6 +1,7 @@
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const cloudinary = require("../cloudinary");
 var User = require("../models/user");
 var bookModel = require("../models/book");
 var ObjectId = require("mongodb").ObjectId;
@@ -99,7 +100,7 @@ module.exports.removeFromCart = async (req, res) => {
             productList: cart[0].productList,
             totalPrice: totalPrice
         },
-        {new: true})
+        )
     const result = await Cart.find({ userID: userDemo })
     if (update) res.status(201).json({ success: true, data: result });
 };
@@ -174,25 +175,56 @@ module.exports.getCart = async (req, res) => {
 
 module.exports.getUserById = async (req, res) => {
     const { ID } = req.query;
-    const user = await User.findById(ID);
+    const user = await User.findById(ID).populate("comments.author");
     return res.json(user);
 };
 
 module.exports.Comment = async (req, res) => {
+    console.log("here");
     const { rating, content, sellerID } = req.body;
+    const authorDemo = "5f28181d59ee352004b990b2";
+    let user = await User.findById(authorDemo);
     const createdAt = Date.now();
     const seller = await User.findOneAndUpdate(
         { _id: ObjectId(sellerID) },
         {
             $push: {
-                comment: {
+                comments: {
+                    author: user,
                     rating: rating,
                     content: content,
                     createdAt: createdAt,
                 },
             },
-        }
+        },
+        { new: true }
+    ).populate("comments.author");
+    console.log(seller);
+    if (seller)
+        return res
+            .status(201)
+            .json({ success: true, comments: seller.comments });
+    else
+        return res.status(204).json({ success: false, data: "Comment failed" });
+};
+module.exports.uploadAvatar = async (req, res) => {
+    let userDemo = "5f28181d59ee352004b990b2";
+    const uploader = async (path) => await cloudinary.uploads(path, "images");
+    const newPath = await uploader(req.file.path);
+
+    const result = await User.findOneAndUpdate(
+        { _id: ObjectId(userDemo) },
+        { avatar: newPath.url },
+        { new: true }
     );
-    if (seller) return res.status(201).json({ success: true, data: "Comment successfully" });
-    else return res.status(204).json({ fail: true, data: "Comment failed" })
+    console.log(result);
+    res.status(200).json({ success: true, avatar: newPath.url });
+};
+module.exports.removeAvatar = async (req, res) => {
+    let userDemo = "5f28181d59ee352004b990b2";
+    const result = await User.findOneAndUpdate(
+        { _id: ObjectId(userDemo) },
+        { avatar: undefined }
+    );
+    res.status(201).json({ success: true });
 };
