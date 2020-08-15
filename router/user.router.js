@@ -25,18 +25,18 @@ function requireLogin(req, res, next) {
 router.post("/register", userController.postRegister);
 router.post("/login", userController.postLogin);
 router.use(requireLogin)
-router.post("/update", userController.update);
+router.post("/update", utils.requireRole(1),userController.update);
 router.get("/book-list",utils.requireRole(1), userController.getBook);
-router.get("/user", userController.getUserById);
-router.post("/add-to-cart", userController.addToCart);
-router.post("/comment", userController.Comment);
-router.post("/remove-from-cart", userController.removeFromCart);
-router.get("/cart", userController.getCart);
+router.get("/user",utils.requireRole(1), userController.getUserById);
+router.post("/add-to-cart",utils.requireRole(1), userController.addToCart);
+router.post("/comment", utils.requireRole(1),userController.Comment);
+router.post("/remove-from-cart",utils.requireRole(1), userController.removeFromCart);
+router.get("/cart",utils.requireRole(1), userController.getCart);
 router.post(
     "/upload-avatar",
-    upload.single("avatar"),
+    upload.single("avatar"),utils.requireRole(1),
     userController.uploadAvatar
 );
-router.get("/remove-avatar", userController.removeAvatar);
+router.get("/remove-avatar", utils.requireRole(1),userController.removeAvatar);
 
 module.exports = router;
