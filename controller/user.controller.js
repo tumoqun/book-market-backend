@@ -108,7 +108,41 @@ module.exports.removeFromCart = async (req, res) => {
     const result = await Cart.findOne({ userID: userDemo });
     if (update) res.status(201).json({ success: true, data: result });
 };
-// logic cua ong h doc met qua :)) don gian ma, update xong r lay lai cai cart ms nhât
+
+module.exports.updateCart = async (req, res) => {
+    const { productID, amount } = req.body;
+    let userDemo = "5f2d4905d71a33560403041a";
+    const cart = await Cart.findOne({ userID: userDemo });
+    console.log(cart);
+    let productList = [...cart.productList];
+
+    let distance = 0;
+    for (let product of productList) {
+        if (productID === product.productID._id.toString()) {
+            distance =
+                product.productID.price * amount -
+                product.productID.price * product.amount;
+            product.amount = amount;
+            break;
+        }
+    }
+    console.log(productList);
+    console.log(distance);
+    var totalPrice = parseInt(cart.totalPrice) + distance;
+
+    console.log(totalPrice);
+    const update = await Cart.findOneAndUpdate(
+        { userID: userDemo },
+        {
+            productList,
+            totalPrice,
+        },
+        { new: true }
+    );
+    const result = await Cart.findOne({ userID: userDemo });
+    res.status(201).json({ success: true, data: result });
+};
+
 module.exports.postLogin = async (req, res) => {
     const { username, password } = req.body;
     const userByUsername = await User.findOne({ username });
@@ -186,7 +220,7 @@ module.exports.getUserById = async (req, res) => {
 module.exports.Comment = async (req, res) => {
     console.log("here");
     const { rating, content, sellerID } = req.body;
-    const authorDemo = "5f28181d59ee352004b990b2";
+    const authorDemo = "5f2d4905d71a33560403041a";
     let user = await User.findById(authorDemo);
     const createdAt = Date.now();
     const seller = await User.findOneAndUpdate(
@@ -212,7 +246,7 @@ module.exports.Comment = async (req, res) => {
         return res.status(204).json({ success: false, data: "Comment failed" });
 };
 module.exports.uploadAvatar = async (req, res) => {
-    let userDemo = "5f28181d59ee352004b990b2";
+    let userDemo = "5f2d4905d71a33560403041a";
     const uploader = async (path) => await cloudinary.uploads(path, "images");
     const newPath = await uploader(req.file.path);
 
@@ -225,7 +259,7 @@ module.exports.uploadAvatar = async (req, res) => {
     res.status(200).json({ success: true, avatar: newPath.url });
 };
 module.exports.removeAvatar = async (req, res) => {
-    let userDemo = "5f28181d59ee352004b990b2";
+    let userDemo = "5f2d4905d71a33560403041a";
     const result = await User.findOneAndUpdate(
         { _id: ObjectId(userDemo) },
         { avatar: undefined }

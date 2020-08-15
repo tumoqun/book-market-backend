@@ -18,5 +18,6 @@ router.post(
     userController.uploadAvatar
 );
 router.get("/remove-avatar", userController.removeAvatar);
+router.post("/update-cart", userController.updateCart);
 
 module.exports = router;
