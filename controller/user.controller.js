@@ -10,6 +10,15 @@ const { findById } = require("../models/user");
 const Book = require("../models/book");
 var ObjectId = require("mongodb").ObjectId;
 
+module.exports.getUsers = async function (req, res) {
+    let { role } = req.query;
+
+    if (role) {
+        users = await User.find({ role });
+        res.status(200).json({ success: true, users });
+    }
+};
+
 module.exports.postRegister = async (req, res) => {
     const { email, username } = req.body;
     const userByUsername = await User.find({ username });

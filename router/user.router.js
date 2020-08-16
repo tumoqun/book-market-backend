@@ -3,6 +3,7 @@ var router = express.Router();
 var userController = require("../controller/user.controller");
 const upload = require("../multer");
 
+router.get("/", userController.getUsers);
 router.post("/register", userController.postRegister);
 router.post("/login", userController.postLogin);
 router.post("/update", userController.update);
