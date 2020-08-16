@@ -135,7 +135,7 @@ module.exports.postLogin = async (req, res) => {
     const accessToken = jwt.sign(payload, process.env.jwt, {
         expiresIn: "2d",
     });
-    res.status(201).json({ success: true, data: { accessToken } });
+    res.status(201).json({ success: true, data: { accessToken,payload } });
 };
 
 module.exports.update = async (req, res) => {
@@ -150,7 +150,7 @@ module.exports.update = async (req, res) => {
 };
 module.exports.getBook = async (req, res) => {
     const { page, perPage, author, categoryId, sellerId } = req.query;
-
+    console.log(req.user)
     const options = {
         page: parseInt(page, 10) || 1,
         limit: parseInt(perPage, 10) || 10,
