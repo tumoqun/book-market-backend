@@ -40,11 +40,11 @@ module.exports.postRegister = async (req, res) => {
 
 module.exports.addToCart = async (req, res) => {
     const { productID, amount } = req.body;
-    let userDemo = "5f2d4905d71a33560403041a";
+    let user = req.user;
     var duplicate = false;
-    // const {user}=req
+
     const product = await Book.findById(productID);
-    const cart = await Cart.find({ userID: userDemo });
+    const cart = await Cart.find({ userID: user.id });
     var totalPrice = 0;
     cart[0].productList.forEach((element) => {
         if (element.productID._id == productID) {
@@ -56,7 +56,7 @@ module.exports.addToCart = async (req, res) => {
     var update;
     if (duplicate) {
         update = await Cart.findOneAndUpdate(
-            { userID: userDemo },
+            { userID: user.id },
             {
                 productList: cart[0].productList,
                 totalPrice: totalPrice,
@@ -64,7 +64,7 @@ module.exports.addToCart = async (req, res) => {
         );
     } else {
         update = await Cart.findOneAndUpdate(
-            { userID: userDemo },
+            { userID: user.id },
             {
                 $push: {
                     productList: {
@@ -78,15 +78,13 @@ module.exports.addToCart = async (req, res) => {
             }
         );
     }
-    const result = await Cart.find({ userID: userDemo });
+    const result = await Cart.find({ userID: user.id });
     if (update) res.status(201).json({ success: true, data: result });
 };
 
 module.exports.removeFromCart = async (req, res) => {
     const { productID } = req.body;
-    let userDemo = "5f2d4905d71a33560403041a";
-    // const {user}=req
-    const cart = await Cart.find({ userID: userDemo });
+    const cart = await Cart.find({ userID: req.user.id });
     var totalPrice = cart[0].totalPrice;
     for (let i = 0; i < cart[0].productList.length; i++) {
         if (cart[0].productList[i].productID._id == productID) {
@@ -99,20 +97,19 @@ module.exports.removeFromCart = async (req, res) => {
         }
     }
     const update = await Cart.findOneAndUpdate(
-        { userID: userDemo },
+        { userID: req.user.id },
         {
             productList: cart[0].productList,
             totalPrice: totalPrice,
         }
     );
-    const result = await Cart.findOne({ userID: userDemo });
+    const result = await Cart.findOne({ userID: req.user.id });
     if (update) res.status(201).json({ success: true, data: result });
 };
 
 module.exports.updateCart = async (req, res) => {
     const { productID, amount } = req.body;
-    let userDemo = "5f2d4905d71a33560403041a";
-    const cart = await Cart.findOne({ userID: userDemo });
+    const cart = await Cart.findOne({ userID: req.user.id });
     console.log(cart);
     let productList = [...cart.productList];
 
@@ -132,19 +129,20 @@ module.exports.updateCart = async (req, res) => {
 
     console.log(totalPrice);
     const update = await Cart.findOneAndUpdate(
-        { userID: userDemo },
+        { userID: req.user.id },
         {
             productList,
             totalPrice,
         },
         { new: true }
     );
-    const result = await Cart.findOne({ userID: userDemo });
+    const result = await Cart.findOne({ userID: req.user.id });
     res.status(201).json({ success: true, data: result });
 };
 
 module.exports.postLogin = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body;
+    console.log(role);
     const userByUsername = await User.findOne({ username });
 
     if (userByUsername === null) {
@@ -157,10 +155,16 @@ module.exports.postLogin = async (req, res) => {
                 .status(202)
                 .json({ success: false, msg: "Mật khẩu không đúng" });
         }
+        if (userByUsername.role !== role) {
+            return res
+                .status(202)
+                .json({ success: false, msg: "Lỗi quyền truy cập" });
+        }
     }
 
     const payload = {
         user: {
+            id: userByUsername.id,
             email: userByUsername.email,
             username: userByUsername.username,
             role: userByUsername.role,
@@ -169,7 +173,10 @@ module.exports.postLogin = async (req, res) => {
     const accessToken = jwt.sign(payload, process.env.jwt, {
         expiresIn: "2d",
     });
-    res.status(201).json({ success: true, data: { accessToken, payload } });
+    res.status(201).json({
+        success: true,
+        data: { accessToken, user: payload.user },
+    });
 };
 
 module.exports.update = async (req, res) => {
@@ -210,9 +217,7 @@ module.exports.getBook = async (req, res) => {
 };
 
 module.exports.getCart = async (req, res) => {
-    const { userID } = req.query;
-
-    const cart = await Cart.findOne({ userID: "5f2d4905d71a33560403041a" });
+    const cart = await Cart.findOne({ userID: req.user.id });
 
     return res.json(cart);
 };
