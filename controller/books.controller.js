@@ -29,6 +29,7 @@ module.exports.getBooks = async (req, res) => {
         },
         options
     );
+    console.log(sellerId);
 
     return res.json(books);
 };
