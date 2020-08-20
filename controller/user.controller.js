@@ -175,17 +175,20 @@ module.exports.postLogin = async (req, res) => {
     });
     res.status(201).json({
         success: true,
-        data: { accessToken, user: payload.user },
+        data: { accessToken, user: userByUsername },
     });
 };
 
 module.exports.update = async (req, res) => {
-    const user = "5f1dacbce20e190faca9c8eb";
     let objUpdate = req.body;
 
-    const result = await User.findOneAndUpdate({ _id: user }, objUpdate, {
-        new: true,
-    });
+    const result = await User.findOneAndUpdate(
+        { _id: req.user.id },
+        objUpdate,
+        {
+            new: true,
+        }
+    );
 
     res.status(201).json({ success: true, data: { user: result } });
 };
@@ -257,12 +260,11 @@ module.exports.Comment = async (req, res) => {
         return res.status(204).json({ success: false, data: "Comment failed" });
 };
 module.exports.uploadAvatar = async (req, res) => {
-    let userDemo = "5f2d4905d71a33560403041a";
     const uploader = async (path) => await cloudinary.uploads(path, "images");
     const newPath = await uploader(req.file.path);
 
     const result = await User.findOneAndUpdate(
-        { _id: ObjectId(userDemo) },
+        { _id: ObjectId(req.user.id) },
         { avatar: newPath.url },
         { new: true }
     );
@@ -270,9 +272,8 @@ module.exports.uploadAvatar = async (req, res) => {
     res.status(200).json({ success: true, avatar: newPath.url });
 };
 module.exports.removeAvatar = async (req, res) => {
-    let userDemo = "5f2d4905d71a33560403041a";
     const result = await User.findOneAndUpdate(
-        { _id: ObjectId(userDemo) },
+        { _id: ObjectId(req.user.id) },
         { avatar: undefined }
     );
     res.status(201).json({ success: true });

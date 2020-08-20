@@ -19,8 +19,7 @@ const fs = require("fs");
     }
 */
 module.exports.postUpload = async (req, res) => {
-    const idDemo = "5f28184759ee352004b990b3";
-    const sellerId = await userModel.findById(idDemo);
+    const sellerId = await userModel.findById(req.user.id);
 
     const uploader = async (path) => await cloudinary.uploads(path, "images");
     const urlsImage = [];
@@ -46,5 +45,6 @@ module.exports.postUpload = async (req, res) => {
     console.log(bookDoc);
     const Book = new bookModel(bookDoc);
     await Book.save();
-    res.status(201).json({ success: true, Book });
+    let books = await bookModel.find({ seller: req.user.id });
+    res.status(201).json({ success: true, books });
 };
