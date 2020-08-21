@@ -26,8 +26,8 @@ router.post("/register", userController.postRegister);
 router.post("/login", userController.postLogin);
 router.use(requireLogin);
 router.post("/update", utils.requireRole(1), userController.update);
-router.post("/recharge",utils.requireRole(1),userController.Recharge)
-router.post("/pay-cart",utils.requireRole(1),userController.PayCart)
+router.post("/recharge", utils.requireRole(1), userController.Recharge);
+router.post("/pay-cart", utils.requireRole(1), userController.PayCart);
 router.get("/book-list", utils.requireRole(1), userController.getBook);
 router.get("/user", utils.requireRole(1), userController.getUserById);
 router.post("/add-to-cart", utils.requireRole(1), userController.addToCart);
@@ -46,5 +46,6 @@ router.post(
 );
 router.post("/update-cart", userController.updateCart);
 router.get("/remove-avatar", utils.requireRole(1), userController.removeAvatar);
+router.get("/orders/add_order", utils.requireRole(1), userController.order);
 
 module.exports = router;

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const cloudinary = require("../cloudinary");
 var User = require("../models/user");
 var bookModel = require("../models/book");
+const Order = require("../models/order");
 var ObjectId = require("mongodb").ObjectId;
 const Cart = require("../models/cart");
 const { findById } = require("../models/user");
@@ -11,41 +12,54 @@ const Book = require("../models/book");
 var ObjectId = require("mongodb").ObjectId;
 
 module.exports.Recharge = async (req, res) => {
-    const {amount}=req.body
-    const {user}=req
-    const update=await User.findOneAndUpdate(
-        {_id:user.id},
+    const { amount } = req.body;
+    const { user } = req;
+    const update = await User.findOneAndUpdate(
+        { _id: user.id },
         {
-        $inc:{
-            wallet:amount        
-       }
-    }
-    )
-    if(update) return res.status(201).json({ success: true, msg:"Nạp tiền vào ví thành công!"  });
-    else return res.status(202).json({
-        success: false,
-        msg: "Nạp tiền thất bại!",
-    });
-}
+            $inc: {
+                wallet: amount,
+            },
+        }
+    );
+    if (update)
+        return res
+            .status(201)
+            .json({ success: true, msg: "Nạp tiền vào ví thành công!" });
+    else
+        return res.status(202).json({
+            success: false,
+            msg: "Nạp tiền thất bại!",
+        });
+};
 
 module.exports.PayCart = async (req, res) => {
-    const {amount}=req.body
-    const {user}=req
-    const buyer=User.findOne({_id:user.id})
-    if(buyer.wallet<amount) return res.status(202).json({success:false,msg:"Số dư tài khoản không đủ!"});
-    else{
-        const update=User.findOneAndUpdate(
-            {_id:update.id},
+    const { amount } = req.body;
+    const { user } = req;
+    const buyer = User.findOne({ _id: user.id });
+    if (buyer.wallet < amount)
+        return res
+            .status(202)
+            .json({ success: false, msg: "Số dư tài khoản không đủ!" });
+    else {
+        const update = User.findOneAndUpdate(
+            { _id: update.id },
             {
-                $dec:{
-                    wallet:amount
-                }
+                $dec: {
+                    wallet: amount,
+                },
             }
-        )
-        if(update) return res.status(201).json({success:true,msg:"Thanh toán thành công!"});
-        else return res.status(202).json({success:false,msg:"Thanh toán thất bại"})
+        );
+        if (update)
+            return res
+                .status(201)
+                .json({ success: true, msg: "Thanh toán thành công!" });
+        else
+            return res
+                .status(202)
+                .json({ success: false, msg: "Thanh toán thất bại" });
     }
-}
+};
 
 module.exports.postRegister = async (req, res) => {
     const { email, username } = req.body;
@@ -314,4 +328,26 @@ module.exports.removeAvatar = async (req, res) => {
         { avatar: undefined }
     );
     res.status(201).json({ success: true });
+};
+
+module.exports.order = async (req, res) => {
+    let cart = await Cart.findOne({ userID: req.user.id });
+    if (cart.totalPrice == 0) {
+        return res
+            .status(201)
+            .json({ success: false, msg: "Giỏ hàng đang rỗng" });
+    }
+    let order = await Order.create({
+        customer: ObjectId(req.user.id),
+        cart: { totalPrice: cart.totalPrice, productList: cart.productList },
+        status: 0,
+    });
+    await Cart.findOneAndUpdate(
+        { userID: req.user.id },
+        { totalPrice: 0, productList: [] }
+    );
+    if (order) {
+        return res.status(201).json({ success: true });
+    }
+    res.status(500).json({ success: false });
 };
