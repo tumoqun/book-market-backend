@@ -45,6 +45,14 @@ module.exports.postUpload = async (req, res) => {
     console.log(bookDoc);
     const Book = new bookModel(bookDoc);
     await Book.save();
-    let books = await bookModel.find({ seller: req.user.id });
+    const options = {
+        page: 1,
+        limit: 10,
+        populate: {
+            path: "seller",
+            model: "User",
+        },
+    };
+    const books = await bookModel.paginate({ seller: req.user.id }, options);
     res.status(201).json({ success: true, books });
 };
