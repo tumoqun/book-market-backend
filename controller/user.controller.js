@@ -10,6 +10,43 @@ const { findById } = require("../models/user");
 const Book = require("../models/book");
 var ObjectId = require("mongodb").ObjectId;
 
+module.exports.Recharge = async (req, res) => {
+    const {amount}=req.body
+    const {user}=req
+    const update=await User.findOneAndUpdate(
+        {_id:user.id},
+        {
+        $inc:{
+            wallet:amount        
+       }
+    }
+    )
+    if(update) return res.status(201).json({ success: true, msg:"Nạp tiền vào ví thành công!"  });
+    else return res.status(202).json({
+        success: false,
+        msg: "Nạp tiền thất bại!",
+    });
+}
+
+module.exports.PayCart = async (req, res) => {
+    const {amount}=req.body
+    const {user}=req
+    const buyer=User.findOne({_id:user.id})
+    if(buyer.wallet<amount) return res.status(202).json({success:false,msg:"Số dư tài khoản không đủ!"});
+    else{
+        const update=User.findOneAndUpdate(
+            {_id:update.id},
+            {
+                $dec:{
+                    wallet:amount
+                }
+            }
+        )
+        if(update) return res.status(201).json({success:true,msg:"Thanh toán thành công!"});
+        else return res.status(202).json({success:false,msg:"Thanh toán thất bại"})
+    }
+}
+
 module.exports.postRegister = async (req, res) => {
     const { email, username } = req.body;
     const userByUsername = await User.find({ username });
