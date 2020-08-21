@@ -5,6 +5,7 @@ const cors = require("cors");
 const userRouter = require("./router/user.router");
 const sellerRouter = require("./router/seller.router");
 const booksRouter = require("./router/books.router");
+const adminRouter=require("./router/admin.router");
 const categoriesRouter = require("./router/categories.router");
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/users", userRouter);
+app.use("/admin",adminRouter);
 app.use("/api/seller", sellerRouter);
 app.use("/api/books", booksRouter);
 app.use("/api/categories", categoriesRouter);

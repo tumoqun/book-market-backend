@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const utils =require("../utils/utils")
 const jwt = require("jsonwebtoken");
+const adminController=require("../controller/admin.controller")
 
 function requireLogin(req, res, next) {
     let accessToken = req.header("Authorization");
@@ -23,5 +24,7 @@ function requireLogin(req, res, next) {
 //admin route here 
 
 router.use(requireLogin)
-router.post("/abc", utils.requireRole(3));
+router.get("/user-list", utils.requireRole(3),adminController.getUser);
+
+module.exports=router
 
