@@ -41,7 +41,6 @@ router.get("/cart", utils.requireRole(1), userController.getCart);
 router.post(
     "/upload-avatar",
     upload.single("avatar"),
-    utils.requireRole(1),
     userController.uploadAvatar
 );
 router.post("/update-cart", userController.updateCart);
