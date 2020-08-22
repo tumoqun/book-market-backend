@@ -7,8 +7,9 @@ var orderSchema = new mongoose.Schema(
         cart: { totalPrice: Number, productList: Array },
         status: Number,
         // 0: seller chưa xác nhận,
-        // 1: seller xác nhận và đã giao hàng,
-        // 2: hủy đơn hàng
+        // 1: seller xác nhận,
+        // 2: hoàn thành đơn hàng thành công
+        // 3: hủy đơn hàng
     },
     { timestamps: true }
 );
