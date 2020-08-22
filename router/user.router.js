@@ -47,5 +47,11 @@ router.post(
 router.post("/update-cart", userController.updateCart);
 router.get("/remove-avatar", utils.requireRole(1), userController.removeAvatar);
 router.get("/orders/add_order", utils.requireRole(1), userController.order);
+router.get("/orders", utils.requireRole(1), userController.orders);
+router.put(
+    "/orders/:idOrder/status",
+    utils.requireRole(1),
+    userController.cancelOrder
+);
 
 module.exports = router;

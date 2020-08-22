@@ -351,3 +351,14 @@ module.exports.order = async (req, res) => {
     }
     res.status(500).json({ success: false });
 };
+module.exports.orders = async function (req, res) {
+    const orders = await Order.find({ customer: req.user.id });
+    res.status(200).json({ success: true, orders });
+};
+module.exports.cancelOrder = async function (req, res) {
+    let result = await Order.findByIdAndUpdate(req.params.idOrder, {
+        status: req.body.status,
+    });
+    const orders = await Order.find({}).populate("customer");
+    res.json({ success: true, orders });
+};
