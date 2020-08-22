@@ -210,6 +210,12 @@ module.exports.postLogin = async (req, res) => {
                 .status(202)
                 .json({ success: false, msg: "Lỗi quyền truy cập" });
         }
+        if (userByUsername.status === 0) {
+            return res.status(202).json({
+                success: false,
+                msg: "Lỗi truy cập. Tài khoản đã bị khóa",
+            });
+        }
     }
 
     const payload = {
@@ -284,8 +290,7 @@ module.exports.getUserById = async (req, res) => {
 module.exports.Comment = async (req, res) => {
     console.log("here");
     const { rating, content, sellerID } = req.body;
-    const authorDemo = "5f2d4905d71a33560403041a";
-    let user = await User.findById(authorDemo);
+    let user = await User.findById(req.user.id);
     const createdAt = Date.now();
     const seller = await User.findOneAndUpdate(
         { _id: ObjectId(sellerID) },
