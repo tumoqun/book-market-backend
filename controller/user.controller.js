@@ -193,7 +193,6 @@ module.exports.updateCart = async (req, res) => {
 
 module.exports.postLogin = async (req, res) => {
     const { username, password, role } = req.body;
-    console.log(role);
     const userByUsername = await User.findOne({ username });
 
     if (userByUsername === null) {

@@ -31,5 +31,5 @@ router.put(
     utils.requireRole(3),
     adminController.changeStatus
 );
-
+router.post("/ban", utils.requireRole(3), adminController.banUser);
 module.exports = router;
