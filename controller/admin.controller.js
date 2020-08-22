@@ -25,6 +25,15 @@ module.exports.getUser = async (req, res) => {
 };
 
 module.exports.getOrders = async (req, res) => {
-    const orders = await Order.find({});
+    const orders = await Order.find({}).populate("customer");
+    res.json({ success: true, orders });
+};
+
+module.exports.changeStatus = async (req, res) => {
+    let result = await Order.findByIdAndUpdate(req.params.idOrder, {
+        status: req.body.status,
+    });
+    console.log(result);
+    const orders = await Order.find({}).populate("customer");
     res.json({ success: true, orders });
 };

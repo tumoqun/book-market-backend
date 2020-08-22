@@ -26,5 +26,10 @@ function requireLogin(req, res, next) {
 router.use(requireLogin);
 router.get("/user-list", utils.requireRole(3), adminController.getUser);
 router.get("/orders", utils.requireRole(3), adminController.getOrders);
+router.put(
+    "/orders/:idOrder/status",
+    utils.requireRole(3),
+    adminController.changeStatus
+);
 
 module.exports = router;
