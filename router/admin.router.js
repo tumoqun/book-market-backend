@@ -25,6 +25,6 @@ function requireLogin(req, res, next) {
 
 router.use(requireLogin)
 router.get("/user-list", utils.requireRole(3),adminController.getUser);
-
+router.post("/ban",utils.requireRole(3),adminController.banUser)
 module.exports=router
 

@@ -21,5 +21,22 @@ module.exports.getUser = async (req, res) => {
         const seller=await User.find({role:2})
     return res.json({success:true,data:seller})
     }
-    return res.status(404).json({success:false,data:"get user failed!"})
+    return res.json({success:false,data:"get user failed!"})
+}
+
+module.exports.banUser = async (req, res) => {
+    const {email,status}=req.body
+    var user
+    if(status=="Đã bị ban") {  user= await User.findOneAndUpdate(
+        {email:email},  
+        {status:1}
+    )
+    }
+    else { user= await User.findOneAndUpdate(
+        {email:email},  
+        {status:0}
+    )
+    }
+    if(user) return res.json({success:true,msg:"Thay đổi trạng thái thành công!"})
+    else return res.json({success:false,msg:"Thay đổi trạng thái thất bại!"})
 }

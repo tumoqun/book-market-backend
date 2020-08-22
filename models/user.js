@@ -9,7 +9,8 @@ var userSchema = new mongoose.Schema(
         role: Number, // 1: buyer, 2: seller, 3: admin
         avatar: String,
         name: String,
-        wallet:{ Number, default: 0 },
+        status: { type: Number, default: 1 },
+        wallet: { Number, default: 0 },
         comments: [
             {
                 author: { type: mongoose.Types.ObjectId, ref: "User" },
