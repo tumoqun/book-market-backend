@@ -21,15 +21,15 @@ function requireLogin(req, res, next) {
         return next();
     });
 }
-
+router.get("/user", userController.getUserById);
 router.post("/register", userController.postRegister);
 router.post("/login", userController.postLogin);
 router.use(requireLogin);
-router.post("/update", utils.requireRole(1), userController.update);
+router.post("/update", userController.update);
 router.post("/recharge", utils.requireRole(1), userController.Recharge);
 router.post("/pay-cart", utils.requireRole(1), userController.PayCart);
 router.get("/book-list", utils.requireRole(1), userController.getBook);
-router.get("/user", utils.requireRole(1), userController.getUserById);
+
 router.post("/add-to-cart", utils.requireRole(1), userController.addToCart);
 router.post("/comment", utils.requireRole(1), userController.Comment);
 router.post(
