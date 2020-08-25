@@ -37,6 +37,6 @@ module.exports.getBooks = async (req, res) => {
 module.exports.getBook = async (req, res) => {
     const { id_book: idBook } = req.params;
 
-    const book = await bookModel.findById(idBook);
+    const book = await bookModel.findById(idBook).populate("seller");
     return res.json(book);
 };
