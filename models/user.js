@@ -25,6 +25,11 @@ var userSchema = new mongoose.Schema(
                 amount: Number,
             },
         ],
+        favorites: [
+            {
+                book: { type: mongoose.Types.ObjectId, ref: "Book" },
+            },
+        ],
     },
     { timestamps: true }
 );

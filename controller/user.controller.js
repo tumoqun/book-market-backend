@@ -366,3 +366,28 @@ module.exports.cancelOrder = async function (req, res) {
     const orders = await Order.find({}).populate("customer");
     res.json({ success: true, orders });
 };
+
+module.exports.addToFavorite = async function (req, res) {
+    let book = await bookModel.findById(req.body.idBook);
+    console.log(book);
+    let user = await User.findById(req.user.id);
+    let favorites = user.favorites;
+    for (let item of favorites) {
+        if (req.body.idBook == item.book) {
+            return res.json({
+                success: false,
+                msg: "Đã tồn tại trong danh sách yêu thích",
+            });
+        }
+    }
+    await User.findOneAndUpdate(
+        { _id: ObjectId(req.user.id) },
+        { $push: { favorites: { book } } },
+        { new: true }
+    );
+    res.status(201).json({ success: true });
+};
+module.exports.getFavorites = async function (req, res) {
+    let user = await User.findById(req.user.id).populate("favorites.book");
+    res.json({ success: true, favorites: user.favorites });
+};
