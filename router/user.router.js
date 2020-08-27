@@ -52,5 +52,12 @@ router.put(
     utils.requireRole(1),
     userController.cancelOrder
 );
+router.post(
+    "/add_to_favorite",
+    utils.requireRole(1),
+    userController.addToFavorite
+);
+
+router.get("/favorites", utils.requireRole(1), userController.getFavorites);
 
 module.exports = router;
