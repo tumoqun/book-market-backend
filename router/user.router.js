@@ -59,5 +59,10 @@ router.post(
 );
 
 router.get("/favorites", utils.requireRole(1), userController.getFavorites);
+router.delete(
+    "/favorites",
+    utils.requireRole(1),
+    userController.removeFromFavorite
+);
 
 module.exports = router;

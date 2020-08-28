@@ -369,7 +369,6 @@ module.exports.cancelOrder = async function (req, res) {
 
 module.exports.addToFavorite = async function (req, res) {
     let book = await bookModel.findById(req.body.idBook);
-    console.log(book);
     let user = await User.findById(req.user.id);
     let favorites = user.favorites;
     for (let item of favorites) {
@@ -389,5 +388,14 @@ module.exports.addToFavorite = async function (req, res) {
 };
 module.exports.getFavorites = async function (req, res) {
     let user = await User.findById(req.user.id).populate("favorites.book");
+    res.json({ success: true, favorites: user.favorites });
+};
+
+module.exports.removeFromFavorite = async function (req, res) {
+    let user = await User.findOneAndUpdate(
+        { _id: ObjectId(req.user.id) },
+        { $pull: { favorites: { book: req.body.idBook } } },
+        { new: true }
+    ).populate("favorites.book");
     res.json({ success: true, favorites: user.favorites });
 };
