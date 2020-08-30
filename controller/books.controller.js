@@ -2,6 +2,10 @@ var bookModel = require("../models/book");
 var bookModel = require("../models/book");
 var ObjectId = require("mongodb").ObjectId;
 
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+};
+
 module.exports.getBooks = async (req, res) => {
     const { page, perPage, author, categoryId, sellerId } = req.query;
 
@@ -31,8 +35,36 @@ module.exports.getBooks = async (req, res) => {
     );
     console.log(sellerId);
 
+    console.log(books)
     return res.json(books);
 };
+
+module.exports.getAllBooks=async(req,res)=>{
+    const books=await bookModel.find({})
+    return res.json(books)
+}
+
+module.exports.searchBooks=async(req,res)=>{
+    if (req.body.keyword) {
+        const regex = new RegExp(escapeRegex(req.body.keyword), 'gi');
+        bookModel.find({ title: regex }, function(err, foundbooks) {
+            if(err) {
+                return res.json(err);
+            } else {
+               return res.json(foundbooks)
+            }
+        }); 
+    }
+    else {
+        bookModel.find({  }, function(err, foundbooks) {
+            if(err) {
+                return res.json(err);
+            } else {
+               return res.json(foundbooks)
+            }
+        }); 
+    }
+}
 
 module.exports.getBook = async (req, res) => {
     const { id_book: idBook } = req.params;
@@ -40,3 +72,10 @@ module.exports.getBook = async (req, res) => {
     const book = await bookModel.findById(idBook).populate("seller");
     return res.json(book);
 };
+
+module.exports.deleteBook= async(req,res)=>{
+    const {name}=req.body
+    const book=await bookModel.findOneAndDelete({title:name})
+    if (book) return res.json("Xóa thành công!")
+    else return res.json("Xóa thất bại")
+}
