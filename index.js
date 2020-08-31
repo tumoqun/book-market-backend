@@ -25,8 +25,8 @@ app.use("/api/seller", sellerRouter);
 app.use("/api/books", booksRouter);
 app.use("/api/categories", categoriesRouter);
 
-app.listen(process.env.PORT || 3001, () =>
+app.listen(process.env.PORT, () =>
     console.log(
-        `Example app listening at http://localhost:${process.env.PORT || 3001}`
+        `Example app listening at http://localhost:${process.env.PORT}`
     )
 );
