@@ -1,6 +1,4 @@
 const cloudinary = require("cloudinary");
-const dotenv = require("dotenv");
-
 require("dotenv").config({ silent: process.env.NODE_ENV === "production" });
 
 cloudinary.config({
